@@ -27,3 +27,7 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
   - the hand-written validator must agree with the JSON Schema on every fixture line and on 33 targeted mutations
   - end-to-end tests of every command.
 - Spec §5: clarified how cache writes are summed into `usage.json`.
+- Release workflow: when a tag is pushed, it builds, runs `twine check` and publishes to PyPI.
+  - It uses Trusted Publishing, so no API tokens are stored.
+  - The `pypi` environment requires the owner's approval.
+  - The wheel includes the license.

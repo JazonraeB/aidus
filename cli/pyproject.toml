@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Zero-dependency writer and validator for AIDUS, the AI Development Usage Specification."
 readme = "README.md"
 license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 dependencies = []
 authors = [{ name = "Rae" }]

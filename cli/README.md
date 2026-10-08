@@ -1,6 +1,6 @@
 # aidus CLI
 
-`aidus` is a zero-dependency writer and validator for [AIDUS](../spec/AIDUS.md) files. It needs Python 3.10+ and no third-party packages.
+`aidus` is a zero-dependency writer and validator for [AIDUS](https://github.com/JazonraeB/aidus/blob/main/spec/AIDUS.md) files. It needs Python 3.10+ and no third-party packages.
 
 ```bash
 pip install "git+https://github.com/JazonraeB/aidus#subdirectory=cli"   # until it is published on PyPI
