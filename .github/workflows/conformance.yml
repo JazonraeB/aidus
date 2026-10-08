@@ -11,6 +11,7 @@ permissions:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - { os: windows-latest, python: "3.12" }
@@ -36,5 +37,5 @@ jobs:
           python -m venv /tmp/clean
           if [ -x /tmp/clean/bin/python ]; then PY=/tmp/clean/bin/python; else PY=/tmp/clean/Scripts/python; fi
           $PY -m pip install ./cli
-          $PY -m pip freeze | grep -v '^aidus' | (! grep .)
+          $PY -c "import importlib.metadata as m; extra = sorted({d.metadata['Name'] for d in m.distributions()} - {'aidus', 'pip', 'setuptools', 'wheel'}); assert not extra, extra"
           $PY -m aidus --version
