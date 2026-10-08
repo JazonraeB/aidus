@@ -84,3 +84,11 @@ def test_claude_code_reader_matches_expected():
     dumped = json.dumps(events)
     assert all(s not in dumped for s in CC_EXPECTED["forbidden_substrings"])
     assert "cwd" not in dumped and "demo-app" not in dumped
+
+
+def test_claude_code_reader_keeps_only_allowlisted_fields():
+    best, _, _ = claude_code.read_lines(sorted((CC / "projects").rglob("*.jsonl")))
+    for line in best.values():
+        assert set(line) <= set(claude_code.KEPT_LINE_FIELDS) | {"message"}
+        assert set(line["message"]) <= set(claude_code.KEPT_MESSAGE_FIELDS)
+    assert "REDACTED" not in json.dumps(list(best.values()))

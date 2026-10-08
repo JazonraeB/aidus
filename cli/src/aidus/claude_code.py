@@ -7,6 +7,17 @@ import json
 from pathlib import Path
 
 AGENT = "claude-code"
+# The only line fields any reader needs (Appendix B rule 4). Everything else, including
+# message content, tool inputs/outputs and prompts, is dropped as soon as a line is parsed.
+KEPT_LINE_FIELDS = ("type", "timestamp", "cwd", "sessionId", "version", "gitBranch", "isSidechain", "agentId")
+KEPT_MESSAGE_FIELDS = ("id", "model", "usage")
+
+
+def _trim(line):
+    """Allowlisted copy of a transcript line: bounded memory, and content never retained."""
+    kept = {k: line[k] for k in KEPT_LINE_FIELDS if k in line}
+    kept["message"] = {k: line["message"][k] for k in KEPT_MESSAGE_FIELDS if k in line["message"]}
+    return kept
 
 
 def transcript_files(transcript):
@@ -41,7 +52,7 @@ def read_lines(files):
                     continue
                 current = best.get(msg["id"])
                 if current is None or _better(line, current):
-                    best[msg["id"]] = line
+                    best[msg["id"]] = _trim(line)
     for message_id in quarantined:
         best.pop(message_id, None)
     return best, quarantined, skipped
