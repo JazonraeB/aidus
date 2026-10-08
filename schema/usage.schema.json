@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JazonraeB/aidus/schema/usage.schema.json",
+  "title": "AIDUS usage.json (1.0 format)",
+  "description": "usage.json in the AIDUS 1.0 format. In AIDUS 1.1 it is a derived summary rebuilt from events/ (spec/AIDUS.md §5).",
+  "type": "object",
+  "required": ["schema_version", "project_id", "records"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "project_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{6,126}[a-z0-9]$" },
+    "updated_at": { "type": "string" },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["usage_id", "timestamp", "provider", "model", "source"],
+        "properties": {
+          "usage_id": { "type": "string", "minLength": 1 },
+          "timestamp": { "type": "string" },
+          "provider": { "type": "string" },
+          "model": { "type": "string" },
+          "source": { "type": "string" },
+          "session_id": { "type": ["string", "null"] },
+          "input_tokens": { "$ref": "#/$defs/tokens" },
+          "output_tokens": { "$ref": "#/$defs/tokens" },
+          "cached_input_tokens": { "$ref": "#/$defs/tokens" },
+          "reasoning_tokens": { "$ref": "#/$defs/tokens" },
+          "total_tokens": { "$ref": "#/$defs/tokens" },
+          "estimated_cost": { "type": ["number", "null"], "minimum": 0 },
+          "currency": { "type": ["string", "null"] },
+          "cost_status": { "enum": ["authoritative", "estimated", "unknown", null] },
+          "feature": { "type": ["string", "null"] },
+          "developer": { "type": ["string", "null"] },
+          "commit": { "type": ["string", "null"] },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "tokens": { "type": ["integer", "null"], "minimum": 0 }
+  }
+}

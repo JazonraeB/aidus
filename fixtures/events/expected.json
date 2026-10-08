@@ -1,0 +1,40 @@
+{
+  "description": "Expected reader outcomes for each fixture file (spec/AIDUS.md §4-§10). 'events' = usage_ids accepted after dedup; 'quarantine' = reason codes, one per rejected line or conflict.",
+  "reason_codes": {
+    "invalid_json": "Line is not valid JSON",
+    "unsupported_major": "schema_version major is unknown to the reader (§10)",
+    "schema": "Fails schema/event.schema.json",
+    "reasoning_exceeds_output": "reasoning_tokens > output_tokens (§4.2)",
+    "total_mismatch": "total_tokens != sum of buckets excluding reasoning (§4.2)",
+    "cache_write_overlap": "cache_write_tokens set together with a split cache-write bucket (§4.2)",
+    "timestamp_after_recorded_at": "timestamp more than 5 minutes after recorded_at (§4.1)",
+    "credential_pattern": "A string value matches a credential pattern (§9)",
+    "duplicate_conflict": "Same usage_id and recorded_at with different values (§6)"
+  },
+  "valid": {
+    "anthropic-basic.jsonl": {"events": ["claude-code:msg_V01", "claude-code:msg_V02"], "quarantine": []},
+    "openai-mapped.jsonl": {"events": ["codex:resp_V03"], "quarantine": []},
+    "duplicate-identical.jsonl": {"events": ["claude-code:msg_V04"], "quarantine": []},
+    "correction-later-recorded.jsonl": {"events": ["claude-code:msg_V05"], "quarantine": [], "output_tokens": {"claude-code:msg_V05": 444}},
+    "truncated-tail.jsonl": {"events": ["claude-code:msg_V06"], "quarantine": []},
+    "extension-field.jsonl": {"events": ["claude-code:msg_V08"], "quarantine": []},
+    "higher-minor.jsonl": {"events": ["claude-code:msg_V09"], "quarantine": []},
+    "hash-usage-id.jsonl": {"events": ["h:0000000000000000000000000000000000000000000000000000000000000000"], "quarantine": []},
+    "unknown-cost.jsonl": {"events": ["claude-code:msg_V10"], "quarantine": []}
+  },
+  "invalid": {
+    "negative-tokens.jsonl": {"events": [], "quarantine": ["schema"]},
+    "missing-usage-id.jsonl": {"events": [], "quarantine": ["schema"]},
+    "unsupported-major.jsonl": {"events": [], "quarantine": ["unsupported_major"]},
+    "reasoning-exceeds-output.jsonl": {"events": [], "quarantine": ["reasoning_exceeds_output"]},
+    "total-mismatch.jsonl": {"events": [], "quarantine": ["total_mismatch"]},
+    "cache-write-overlap.jsonl": {"events": [], "quarantine": ["cache_write_overlap"]},
+    "timestamp-after-recorded.jsonl": {"events": [], "quarantine": ["timestamp_after_recorded_at"]},
+    "credential-in-notes.jsonl": {"events": [], "quarantine": ["credential_pattern"]},
+    "developer-plaintext.jsonl": {"events": [], "quarantine": ["schema"]},
+    "unknown-field.jsonl": {"events": [], "quarantine": ["schema"]},
+    "unknown-cost-with-amount.jsonl": {"events": [], "quarantine": ["schema"]},
+    "conflicting-duplicates.jsonl": {"events": [], "quarantine": ["duplicate_conflict"]},
+    "not-json.jsonl": {"events": [], "quarantine": ["invalid_json"]}
+  }
+}

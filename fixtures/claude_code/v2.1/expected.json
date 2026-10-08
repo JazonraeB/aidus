@@ -1,0 +1,64 @@
+{
+  "description": "Expected result of reading projects/ per spec/AIDUS.md Appendix B. Written by hand, independently of any reader implementation.",
+  "events": [
+    {
+      "usage_id": "claude-code:msg_A01", "cwd": "C:\\work\\demo-app", "session_id": "11111111-1111-4111-8111-111111111111",
+      "timestamp": "2026-10-01T09:00:01.000Z", "provider": "anthropic", "model": "claude-sonnet-5",
+      "agent": "claude-code", "agent_version": "2.1.270", "branch": "feat/FEAT-001-login", "subagent": false,
+      "input_tokens": 3, "cache_read_tokens": 1000, "cache_write_5m_tokens": 0, "cache_write_1h_tokens": 200,
+      "cache_write_tokens": null, "output_tokens": 50, "reasoning_tokens": 20,
+      "speed": "standard", "inference_geo": "not_available", "service_tier": "standard",
+      "server_tool_requests": {"web_search": 0, "web_fetch": 0}
+    },
+    {
+      "usage_id": "claude-code:msg_A02", "cwd": "C:\\work\\demo-app", "session_id": "11111111-1111-4111-8111-111111111111",
+      "timestamp": "2026-10-01T09:00:09.000Z", "provider": "anthropic", "model": "claude-sonnet-5",
+      "agent": "claude-code", "agent_version": "2.1.270", "branch": "feat/FEAT-001-login", "subagent": false,
+      "input_tokens": 5, "cache_read_tokens": 1200, "cache_write_5m_tokens": 0, "cache_write_1h_tokens": 300,
+      "cache_write_tokens": null, "output_tokens": 444, "reasoning_tokens": 100,
+      "speed": "standard", "inference_geo": "not_available", "service_tier": "standard",
+      "server_tool_requests": {"web_search": 0, "web_fetch": 0}
+    },
+    {
+      "usage_id": "claude-code:msg_A03", "cwd": "C:\\work\\demo-app", "session_id": "11111111-1111-4111-8111-111111111111",
+      "timestamp": "2026-10-01T09:01:00.000Z", "provider": "anthropic", "model": "claude-sonnet-5",
+      "agent": "claude-code", "agent_version": "2.1.270", "branch": "feat/FEAT-001-login", "subagent": false,
+      "input_tokens": 2, "cache_read_tokens": 1500, "cache_write_5m_tokens": 0, "cache_write_1h_tokens": 0,
+      "cache_write_tokens": null, "output_tokens": 100, "reasoning_tokens": 0,
+      "speed": "standard", "inference_geo": "not_available", "service_tier": "standard",
+      "server_tool_requests": {"web_search": 0, "web_fetch": 0}
+    },
+    {
+      "usage_id": "claude-code:msg_A06", "cwd": "C:\\work\\demo-app", "session_id": "11111111-1111-4111-8111-111111111111",
+      "timestamp": "2026-10-01T09:04:00.000Z", "provider": "anthropic", "model": "claude-opus-5-5",
+      "agent": "claude-code", "agent_version": "2.1.270", "branch": "feat/FEAT-001-login", "subagent": false,
+      "input_tokens": 10, "cache_read_tokens": 5000, "cache_write_5m_tokens": 0, "cache_write_1h_tokens": 0,
+      "cache_write_tokens": null, "output_tokens": 900, "reasoning_tokens": 300,
+      "speed": "fast", "inference_geo": "not_available", "service_tier": "standard",
+      "server_tool_requests": {"web_search": 2, "web_fetch": 0}
+    },
+    {
+      "usage_id": "claude-code:msg_B01", "cwd": "C:\\work\\demo-app", "session_id": "22222222-2222-4222-8222-222222222222",
+      "timestamp": "2026-10-02T10:00:01.000Z", "provider": "anthropic", "model": "claude-sonnet-5",
+      "agent": "claude-code", "agent_version": "2.1.263", "branch": "feat/FEAT-001-login", "subagent": false,
+      "input_tokens": 7, "cache_read_tokens": 0, "cache_write_5m_tokens": null, "cache_write_1h_tokens": null,
+      "cache_write_tokens": 1500, "output_tokens": 80, "reasoning_tokens": null,
+      "speed": null, "inference_geo": "not_available", "service_tier": "standard",
+      "server_tool_requests": null
+    },
+    {
+      "usage_id": "claude-code:msg_C01", "cwd": "C:\\work\\demo-app", "session_id": "11111111-1111-4111-8111-111111111111",
+      "timestamp": "2026-10-01T09:06:00.000Z", "provider": "anthropic", "model": "claude-sonnet-5",
+      "agent": "claude-code", "agent_version": "2.1.270", "branch": "feat/FEAT-001-login", "subagent": true,
+      "input_tokens": 4, "cache_read_tokens": 2000, "cache_write_5m_tokens": 400, "cache_write_1h_tokens": 0,
+      "cache_write_tokens": null, "output_tokens": 60, "reasoning_tokens": 0,
+      "speed": "standard", "inference_geo": "not_available", "service_tier": "standard",
+      "server_tool_requests": {"web_search": 0, "web_fetch": 0}
+    }
+  ],
+  "quarantined": [
+    {"message_id": "msg_A07", "reason": "iterations_gt_1"}
+  ],
+  "skipped": ["msg_SYN1", "msg_ERR1"],
+  "forbidden_substrings": ["REDACTED-PROMPT", "REDACTED-ASSISTANT-TEXT"]
+}

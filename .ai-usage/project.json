@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.1",
+  "project_id": "aidus-6ee8af08-deaf-4b04-bb84-fd935ff7ee4d",
+  "project_name": "AIDUS",
+  "description": "AI Development Usage Specification: spec, JSON Schema, conformance fixtures and the aidus CLI.",
+  "repository": {
+    "provider": "github",
+    "url": "https://github.com/JazonraeB/aidus",
+    "branch": "main"
+  },
+  "team": "",
+  "environment": "development",
+  "created_at": "2026-10-08T04:28:13Z",
+  "monitoring": {
+    "enabled": true,
+    "format": "json"
+  }
+}

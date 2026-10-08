@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+.ai-usage/imports/*
+!.ai-usage/imports/.gitkeep
+.DS_Store
+Thumbs.db
+desktop.ini

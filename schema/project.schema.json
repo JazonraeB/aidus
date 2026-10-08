@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JazonraeB/aidus/schema/project.schema.json",
+  "title": "AIDUS project.json",
+  "description": "Project identity, valid for AIDUS 1.0 and 1.1 (spec/AIDUS.md §3).",
+  "type": "object",
+  "required": ["schema_version", "project_id", "project_name"],
+  "properties": {
+    "schema_version": { "enum": ["1.0", "1.1"] },
+    "project_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{6,126}[a-z0-9]$" },
+    "project_name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "description": { "type": "string", "maxLength": 1000 },
+    "repository": {
+      "type": "object",
+      "properties": {
+        "provider": { "type": "string", "maxLength": 64 },
+        "url": {
+          "type": "string",
+          "maxLength": 500,
+          "not": { "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@]+@" }
+        },
+        "branch": { "type": "string", "maxLength": 255 }
+      }
+    },
+    "team": { "type": "string", "maxLength": 200 },
+    "environment": { "type": "string", "maxLength": 64 },
+    "created_at": { "type": "string" },
+    "monitoring": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "format": { "const": "json" }
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+events/** text eol=lf merge=union
+usage.json text eol=lf linguist-generated=true
+project.json text eol=lf
