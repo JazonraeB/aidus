@@ -18,3 +18,12 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 - JSON Schemas for events, `project.json` and `usage.json`.
 - Conformance fixtures (9 valid and 13 invalid event cases, plus synthetic Claude Code transcripts), with a reference reader and tests.
 - CI on Windows and Linux, which also checks that fixtures are regenerated reproducibly.
+- `aidus` CLI 0.1.0 (zero dependencies, Python 3.10+):
+  - `init`
+  - `record --from claude-code` and `record --from claude-code-hook` (fail-open)
+  - `validate`
+  - `rebuild`
+- CLI tests:
+  - the hand-written validator must agree with the JSON Schema on every fixture line and on 33 targeted mutations
+  - end-to-end tests of every command.
+- Spec §5: clarified how cache writes are summed into `usage.json`.

@@ -9,7 +9,7 @@ AIDUS is an open, provider-neutral format for recording the **AI usage behind a 
 └── events/2026-10/<writer_id>.jsonl  # append-only usage events, merge-safe
 ```
 
-**Status:** `1.1.0-draft`. The spec, JSON Schema and conformance fixtures are in place. The `aidus` CLI is planned ([cli/](cli/)).
+**Status:** spec `1.1.0-draft`, and `aidus` CLI `0.1.0` ([cli/](cli/)): `init`, `record` (Claude Code), `validate`, `rebuild`.
 
 ## Why
 
@@ -28,7 +28,7 @@ AIDUS is an open, provider-neutral format for recording the **AI usage behind a 
 | [`fixtures/events/`](fixtures/events/) | Conformance cases: valid and invalid shards, with expected outcomes |
 | [`fixtures/claude_code/`](fixtures/claude_code/) | Synthetic Claude Code transcripts that encode the dedup rules of spec Appendix B |
 | [`tests/`](tests/) | A small reference reader and the conformance test suite |
-| [`cli/`](cli/) | The `aidus` CLI (planned) |
+| [`cli/`](cli/) | The zero-dependency `aidus` CLI |
 
 ## Run the conformance suite
 

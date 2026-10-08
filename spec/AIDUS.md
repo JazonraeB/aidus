@@ -165,7 +165,7 @@ Fields beginning with `x-` are extensions. They MUST follow §9. Readers MAY ign
   | `reasoning_tokens` | `reasoning` |
   | `total_tokens` | `input_tokens + cached_input_tokens + output_tokens` |
 
-  A rollup field is `null` if any contributing event had `null` in that bucket.
+  For each event, the cache-write part is the sum of its non-null cache-write buckets, or `null` if all three are `null`. A rollup field is `null` if any contributing event's value for it is `null`, because unknown stays unknown.
 - `estimated_cost` is `null` and `cost_status` is `"unknown"`, unless the rebuilding tool prices the events. In that case it MUST use `"estimated"` (the 1.0 mapping in §4.5).
 - `notes`: `"AIDUS 1.1 rollup of <n> events"`.
 - **Merge conflicts:** because the file is derived, a conflict is resolved by rebuilding it (`aidus rebuild`), never by hand-merging. Tools SHOULD NOT rebuild it on every event. Rebuilding on demand or before a release keeps conflicts rare.

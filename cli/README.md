@@ -1,13 +1,47 @@
-# aidus CLI (planned)
+# aidus CLI
 
-The `aidus` CLI is a zero-dependency Python tool that writes and validates AIDUS files. It will be published to PyPI as `aidus`.
+`aidus` is a zero-dependency writer and validator for [AIDUS](../spec/AIDUS.md) files. It needs Python 3.10+ and no third-party packages.
+
+```bash
+pip install "git+https://github.com/JazonraeB/aidus#subdirectory=cli"   # until it is published on PyPI
+```
 
 | Command | Purpose |
 | --- | --- |
-| `aidus init [--hooks]` | Create `.ai-usage/`. Optionally install the `prepare-commit-msg` trailer hook and agent hook examples |
-| `aidus record` | Append one event, using usage data read from an agent hook or transcript, never typed by hand |
-| `aidus validate` | Check files against the schemas and the spec's cross-field and privacy rules. Suitable for a pre-commit check |
-| `aidus rebuild` | Regenerate `usage.json` from `events/` (spec §5) |
-| `aidus session start/stop` | Track active agent sessions outside the repo, for commit trailers (spec §8) |
+| `aidus init [--path DIR] [--name NAME]` | Create `.ai-usage/`. An existing `project.json` is never overwritten |
+| `aidus record --from claude-code --transcript FILE` | Append events from a Claude Code transcript and its subagent transcripts |
+| `aidus record --from claude-code-hook` | The same, reading the Claude Code hook payload from stdin. **Always exits 0.** Errors go to the state-dir log |
+| `aidus validate [--path DIR]` | Check `.ai-usage/` against the spec and print `file:line: reason`. Exits 1 on problems. Use it as a pre-commit check |
+| `aidus rebuild [--path DIR]` | Regenerate `usage.json` from `events/` (spec §5). Run it instead of hand-merging a conflict |
 
-The CLI must pass the conformance suite in [`../fixtures/`](../fixtures/).
+## Recording Claude Code automatically
+
+Add this to the project's `.claude/settings.json`, merging it with any existing `"hooks"`:
+
+```json
+{
+  "hooks": {
+    "Stop": [{ "hooks": [{ "type": "command", "command": "aidus record --from claude-code-hook" }] }],
+    "SessionEnd": [{ "hooks": [{ "type": "command", "command": "aidus record --from claude-code-hook" }] }]
+  }
+}
+```
+
+Recording is idempotent. Re-reading a transcript adds only new responses, plus a correction line when a response's usage grew (spec §6).
+
+## Where state lives
+
+The writer id (spec §7) and the error log live **outside** the repository:
+
+| OS | State directory |
+| --- | --- |
+| Windows | `%LOCALAPPDATA%\aidus` |
+| macOS | `~/Library/Application Support/aidus` |
+| Linux | `$XDG_STATE_HOME/aidus` |
+
+Set `AIDUS_STATE_DIR` to override it.
+
+## Not yet implemented
+
+- Commit trailers (`prepare-commit-msg`, spec §8) and `aidus session start/stop`.
+- Readers for agents other than Claude Code.

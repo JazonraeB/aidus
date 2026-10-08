@@ -12,13 +12,16 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        include:
+          - { os: windows-latest, python: "3.12" }
+          - { os: ubuntu-latest, python: "3.12" }
+          - { os: ubuntu-latest, python: "3.10" }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
       - run: python -m pip install -r requirements-dev.txt
       - name: Fixtures are reproducible
         shell: bash
@@ -27,3 +30,11 @@ jobs:
           python fixtures/claude_code/generate.py
           git diff --exit-code -- fixtures
       - run: python -m pytest -q
+      - name: CLI installs with no dependencies and runs
+        shell: bash
+        run: |
+          python -m venv /tmp/clean
+          if [ -x /tmp/clean/bin/python ]; then PY=/tmp/clean/bin/python; else PY=/tmp/clean/Scripts/python; fi
+          $PY -m pip install ./cli
+          $PY -m pip freeze | grep -v '^aidus' | (! grep .)
+          $PY -m aidus --version
