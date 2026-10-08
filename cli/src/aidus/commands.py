@@ -7,7 +7,7 @@ import uuid
 from datetime import timedelta
 from pathlib import Path
 
-from . import claude_code, store, timeutil, validate
+from . import claude_code, git_link, store, timeutil, validate
 
 GITATTRIBUTES = """events/** text eol=lf merge=union
 usage.json text eol=lf linguist-generated=true
@@ -31,8 +31,10 @@ Check before committing with `aidus validate`.
 """
 CLAUDE_CODE_HOOK = {
     "hooks": {
+        "SessionStart": [{"hooks": [{"type": "command", "command": "aidus session start --from claude-code-hook"}]}],
         "Stop": [{"hooks": [{"type": "command", "command": "aidus record --from claude-code-hook"}]}],
-        "SessionEnd": [{"hooks": [{"type": "command", "command": "aidus record --from claude-code-hook"}]}],
+        "SessionEnd": [{"hooks": [{"type": "command", "command": "aidus record --from claude-code-hook"},
+                                  {"type": "command", "command": "aidus session end --from claude-code-hook"}]}],
     }
 }
 COMPARED_FIELDS = validate.TOKEN_FIELDS + ("speed", "inference_geo", "service_tier", "server_tool_requests", "model")
@@ -102,6 +104,8 @@ def cmd_init(args):
 
     for path in created:
         print(f"wrote {path.relative_to(root)}")
+    if getattr(args, "hooks", False):
+        print(git_link.install_hook(root))
     print("\nTo record Claude Code usage automatically, add this to .claude/settings.json "
           "(merge with any existing \"hooks\"):\n")
     print(json.dumps(CLAUDE_CODE_HOOK, indent=2))
@@ -161,6 +165,9 @@ def cmd_record(args):
         # Fail open: a hook must never break the agent or the user's workflow (§8).
         try:
             payload = json.load(sys.stdin)
+            repo = git_link.git_root(payload.get("cwd") or Path.cwd())
+            if repo is not None:
+                git_link.touch_session(repo, payload.get("session_id"))
             root = store.find_root(payload.get("cwd") or Path.cwd())
             if root is None or not payload.get("transcript_path"):
                 return 0
@@ -294,3 +301,43 @@ def cmd_rebuild(args):
     store.write_json_atomic(root / store.AI_USAGE / "usage.json", usage)
     print(f"aidus: rebuilt usage.json from {len(events)} event(s) into {len(usage['records'])} record(s)")
     return 1 if problems else 0
+
+
+# --- session / trailers (spec §8) -----------------------------------------------------------------
+
+def _log_failure(what):
+    log = store.state_dir() / "aidus.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    with open(log, "a", encoding="utf-8") as fh:
+        fh.write(f"{timeutil.now()} {what} failed\n{traceback.format_exc()}\n")
+
+
+def cmd_session(args):
+    """Track an agent session for commit trailers. Hook mode reads the payload from stdin and never fails."""
+    try:
+        if args.source == "claude-code-hook":
+            payload = json.load(sys.stdin)
+            cwd, session_id = payload.get("cwd") or Path.cwd(), payload.get("session_id")
+        else:
+            cwd, session_id = args.path, args.session_id
+        repo = git_link.git_root(cwd)
+        if repo is None or not session_id:
+            return 0
+        if args.action == "start":
+            git_link.touch_session(repo, session_id)
+        else:
+            git_link.end_session(repo, session_id)
+    except Exception:  # noqa: BLE001 - a hook must never break the agent
+        _log_failure(f"session {args.action}")
+    return 0
+
+
+def cmd_trailers(args):
+    """prepare-commit-msg hook: add AI-Session / Feature trailers. Always exits 0."""
+    try:
+        repo = git_link.git_root(Path.cwd())
+        if repo is not None and args.message_file:
+            git_link.add_trailers(Path(args.message_file), repo)
+    except Exception:  # noqa: BLE001 - never block a commit
+        _log_failure("trailers")
+    return 0
