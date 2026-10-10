@@ -8,7 +8,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from aidus.__main__ import main
-from aidus import store
+from aidus import claude_code, store
 
 REPO = Path(__file__).resolve().parents[2]
 SCHEMAS = {n: Draft202012Validator(json.loads((REPO / "schema" / f"{n}.schema.json").read_text(encoding="utf-8")))
@@ -151,3 +151,28 @@ def test_hook_mode_skips_a_session_without_a_transcript_quietly(project, monkeyp
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
     assert main(["record", "--from", "claude-code-hook"]) == 0
     assert _events(project) == [] and not (isolated_state / "aidus.log").exists()  # not an error
+
+
+def test_lines_that_are_json_but_not_transcript_records_are_ignored(project, tmp_path):
+    """A transcript may hold anything: one odd line must not lose the session's usage."""
+    good = (CC_PROJECT / f"{S1}.jsonl").read_text(encoding="utf-8").splitlines()
+    usage = {"input_tokens": 1, "output_tokens": 1}
+    odd = ["null", "123", "true", '"text"', "[]", '[{"type": "assistant"}]', "{}",
+           json.dumps({"type": "assistant", "message": None}),
+           json.dumps({"type": "assistant", "message": {"id": ["a", "list"], "model": "m", "usage": usage}}),
+           json.dumps({"type": "assistant", "message": {"id": {"a": 1}, "model": "m", "usage": usage}}),
+           json.dumps({"type": "assistant", "message": {"id": 7, "model": "m", "usage": usage}}),
+           json.dumps({"type": "assistant", "timestamp": "2026-10-08T09:00:00Z",
+                       "message": {"id": "msg_odd_iterations", "model": "claude-sonnet-5",
+                                   "usage": {**usage, "iterations": 5}}}),
+           json.dumps({"type": "assistant", "timestamp": "2026-10-08T09:00:00Z",
+                       "message": {"id": "msg_text_tokens", "model": "claude-sonnet-5",
+                                   "usage": {"input_tokens": 1, "output_tokens": "many"}}}),
+           json.dumps({"type": "assistant", "timestamp": "2026-10-08T09:00:01Z",
+                       "message": {"id": "msg_text_tokens", "model": "claude-sonnet-5",
+                                   "usage": {"input_tokens": 1, "output_tokens": 3}}})]
+    transcript = tmp_path / "mixed.jsonl"
+    transcript.write_text("\n".join(odd[:6] + good + odd[6:]) + "\n", encoding="utf-8")
+    best, _quarantined, _skipped = claude_code.read_lines([transcript])  # never raises
+    assert set(best) >= set(claude_code.read_lines([CC_PROJECT / f"{S1}.jsonl"])[0])  # the real responses survive
+    assert best["msg_text_tokens"]["message"]["usage"]["output_tokens"] == 3  # the usable copy wins

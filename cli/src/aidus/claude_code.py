@@ -40,14 +40,18 @@ def read_lines(files):
                     line = json.loads(raw)
                 except json.JSONDecodeError:
                     continue  # an incomplete line from a session still being written
-                msg = line.get("message") if isinstance(line, dict) else None
+                if not isinstance(line, dict):
+                    continue  # valid JSON, but not a transcript record (null, a number, a list...)
+                msg = line.get("message")
                 if line.get("type") != "assistant" or not isinstance(msg, dict) \
-                        or not isinstance(msg.get("usage"), dict) or not msg.get("id"):
+                        or not isinstance(msg.get("usage"), dict) \
+                        or not isinstance(msg.get("id"), str) or not msg["id"]:
                     continue
                 if msg.get("model") == "<synthetic>" or line.get("isApiErrorMessage"):
                     skipped.add(msg["id"])
                     continue
-                if len(msg["usage"].get("iterations") or []) > 1:
+                iterations = msg["usage"].get("iterations")
+                if isinstance(iterations, list) and len(iterations) > 1:
                     quarantined[msg["id"]] = "iterations_gt_1"
                     continue
                 current = best.get(msg["id"])
@@ -58,9 +62,14 @@ def read_lines(files):
     return best, quarantined, skipped
 
 
+def _count(value):
+    """A token count as an int; anything that isn't one (missing, text, a bool) counts as 0."""
+    return value if isinstance(value, int) and not isinstance(value, bool) else 0
+
+
 def _better(line, current):
-    out = line["message"]["usage"].get("output_tokens") or 0
-    cur = current["message"]["usage"].get("output_tokens") or 0
+    out = _count(line["message"]["usage"].get("output_tokens"))
+    cur = _count(current["message"]["usage"].get("output_tokens"))
     return out > cur or (out == cur and str(line.get("timestamp")) < str(current.get("timestamp")))
 
 
