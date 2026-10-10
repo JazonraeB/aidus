@@ -82,7 +82,8 @@ def _git(root, *args):
 
 
 def feature_from_branch(root):
-    result = _git(root, "rev-parse", "--abbrev-ref", "HEAD")
+    # symbolic-ref also names the branch before its first commit, where rev-parse HEAD fails.
+    result = _git(root, "symbolic-ref", "--short", "-q", "HEAD")
     m = FEATURE.search(result.stdout or "") if result.returncode == 0 else None
     return m.group(0).upper() if m else None
 

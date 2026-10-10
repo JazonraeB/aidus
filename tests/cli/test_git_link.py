@@ -104,3 +104,26 @@ def test_session_commands_from_claude_code_hook(repo, monkeypatch):
 def test_init_with_hooks(repo):
     assert main(["init", "--path", str(repo), "--hooks"]) == 0
     assert git_link.HOOK_MARKER in (repo / ".git" / "hooks" / "prepare-commit-msg").read_text(encoding="utf-8")
+
+
+def test_feature_trailer_on_the_first_commit_of_a_repository(tmp_path):
+    root = tmp_path / "fresh"
+    root.mkdir()
+    git(root, "init", "-q", "-b", "feat/FEAT-7-export")  # no commit yet: HEAD is unborn
+    assert git_link.feature_from_branch(root) == "FEAT-7"
+    assert git_link.feature_from_branch(tmp_path) is None  # not a repository
+
+
+def test_record_at_session_end_does_not_revive_the_session(repo, monkeypatch):
+    payload = {"session_id": "abc-123", "cwd": str(repo), "hook_event_name": "Stop"}
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
+    assert main(["record", "--from", "claude-code-hook"]) == 0  # a working session: heartbeat
+    assert git_link.active_sessions(repo) == ["abc-123"]
+
+    # SessionEnd runs `record` and `session end` side by side; record may run last.
+    ending = dict(payload, hook_event_name="SessionEnd")
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(ending)))
+    assert main(["session", "end", "--from", "claude-code-hook"]) == 0
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(ending)))
+    assert main(["record", "--from", "claude-code-hook"]) == 0
+    assert git_link.active_sessions(repo) == []
