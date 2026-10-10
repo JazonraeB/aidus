@@ -166,12 +166,17 @@ def cmd_record(args):
         try:
             payload = json.load(sys.stdin)
             repo = git_link.git_root(payload.get("cwd") or Path.cwd())
-            if repo is not None:
+            # Not on SessionEnd: `session end` runs alongside this hook, and refreshing the heartbeat
+            # there would re-create the session it just removed.
+            if repo is not None and payload.get("hook_event_name") != "SessionEnd":
                 git_link.touch_session(repo, payload.get("session_id"))
             root = store.find_root(payload.get("cwd") or Path.cwd())
             if root is None or not payload.get("transcript_path"):
                 return 0
-            _report(record_claude_code(root, Path(payload["transcript_path"])))
+            transcript = Path(payload["transcript_path"])
+            if not transcript.is_file():  # a session closed before it wrote anything: nothing to record
+                return 0
+            _report(record_claude_code(root, transcript))
         except Exception:  # noqa: BLE001 - logged, never raised into the agent
             log = store.state_dir() / "aidus.log"
             log.parent.mkdir(parents=True, exist_ok=True)

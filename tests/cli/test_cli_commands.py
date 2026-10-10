@@ -143,3 +143,11 @@ def test_hook_mode_records_and_fails_open(project, monkeypatch, isolated_state, 
     monkeypatch.setattr("sys.stdin", io.StringIO("not json"))
     assert main(["record", "--from", "claude-code-hook"]) == 0
     assert "record failed" in (isolated_state / "aidus.log").read_text(encoding="utf-8")
+
+
+def test_hook_mode_skips_a_session_without_a_transcript_quietly(project, monkeypatch, isolated_state, tmp_path):
+    payload = {"session_id": S1, "transcript_path": str(tmp_path / "never-written.jsonl"),
+               "cwd": str(project), "hook_event_name": "SessionEnd"}
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
+    assert main(["record", "--from", "claude-code-hook"]) == 0
+    assert _events(project) == [] and not (isolated_state / "aidus.log").exists()  # not an error

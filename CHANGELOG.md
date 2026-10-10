@@ -33,3 +33,7 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
   - It uses Trusted Publishing, so no API tokens are stored.
   - The `pypi` environment requires the owner's approval.
   - The wheel includes the license.
+- `aidus` 0.2.1, fixes found in daily use:
+  - `record --from claude-code-hook` no longer refreshes the session heartbeat on `SessionEnd`. That hook runs alongside `session end`, so the refresh could re-create the session just removed and leave a ghost that claimed commits for two hours.
+  - A session that closed before writing a transcript is skipped quietly, not logged as "record failed".
+  - The `Feature:` trailer is now added on a repository's first commit too (the branch is read with `git symbolic-ref`, which works before the first commit).
