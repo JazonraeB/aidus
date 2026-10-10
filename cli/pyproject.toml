@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aidus"
-version = "0.2.1"
+version = "0.2.2"
 description = "Zero-dependency writer and validator for AIDUS, the AI Development Usage Specification."
 readme = "README.md"
 license = "Apache-2.0"
